@@ -24,10 +24,14 @@ fn main() {
 
 ## 試してみる
 
-`code/src/main.rs`を上記の内容に書き換えて、以下を実行してください。
+このチュートリアルでは、章ごとの実行可能な例をCargoの`examples/`機能で管理します（1章＝1ファイルの独立した実行可能サンプル。Bevy公式のexamplesリポジトリと同じ構成です）。
+
+`code/examples/getting_started.rs`を作り、上記の内容を書いてください。
 
 ```
-cargo run
+cargo run --example getting_started
 ```
 
 初回はBevy本体と依存クレートのビルドが走るため、数分かかることがあります。ウィンドウ（デフォルトでは何も描画されていない黒い画面）が表示されたら成功です。
+
+`code/src/main.rs`はこれ以降、章ごとの実験置き場としては使わず、`examples/`配下に章ごとのファイルを作っていきます。
