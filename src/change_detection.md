@@ -43,7 +43,7 @@ UE5には`Changed<T>`にそのまま相当する汎用の仕組みはなく、�
 
 ## 試してみる
 
-`code/examples/change_detection.rs`を作り、以下を書いてください。
+`code/examples/changed_detection.rs`を作り、以下を書いてください。
 
 ```rust
 use bevy::prelude::*;
@@ -83,7 +83,7 @@ fn main() {
 ```
 
 ```
-cargo run --example change_detection
+cargo run --example changed_detection
 ```
 
 `added:`は最初の1回だけ、`changed:`は`move_right`が毎フレーム`&mut`でアクセスしているため毎フレーム出力されるはずです。試しに`move_right`をコメントアウトすると、`changed:`が一切出なくなることも確認してみてください。
