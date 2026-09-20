@@ -9,3 +9,4 @@
 - [System](./system.md)
 - [Query](./query.md)
 - [EntityとComponent](./entity_component.md)
+- [Resource](./resource.md)

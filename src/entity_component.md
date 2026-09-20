@@ -112,3 +112,23 @@ cargo run --example entity_component
 ```
 
 最初のフレームでは2つのEntityが表示されますが、`Player`を持たない方のEntityが`despawn_non_players`で削除されるため、2フレーム目以降は1つ（Playerの方）だけが表示され続けるはずです。
+
+## 補足: `println!("{entity:?}")`という書き方
+
+`list_entities`の中で使った`{entity:?}`は、2つの要素が組み合わさった書き方です。
+
+**変数名を直接埋め込む記法** — Rust 2021以降、`{}`の中に変数名を直接書けます。
+
+```rust
+println!("{entity}");     // 新しい書き方
+println!("{}", entity);   // 従来の書き方。意味は同じ
+```
+
+**`:?`はDebugフォーマット指定** — `{}`だけだと`Display`（人間向けのきれいな表示）というtraitが使われますが、`Entity`のような多くの型は`Display`を実装しておらず、`#[derive(Debug)]`で自動生成される`Debug`（デバッグ用の内部表現）だけを持っています。`:?`を付けると`Debug`の方でフォーマットされます。
+
+```rust
+println!("{entity}");    // Entityの場合コンパイルエラー（Displayが無い）
+println!("{entity:?}");  // OK。Entity(0v1) のような内部表現が出力される
+```
+
+`{entity:?}`は「`entity`をDebugフォーマットで埋め込む」という意味で、`println!("{:?}", entity)`と同じことをより短く書いたものです。
