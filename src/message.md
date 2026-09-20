@@ -45,6 +45,35 @@ fn on_bounced(mut messages: MessageReader<Bounced>) {
 
 `.read()`は、前回このSystemが読んでから新しく送られたMessageすべてを返すイテレータです。
 
+## 補足: Messageはデータを持てる
+
+ここまでの`Bounced`はフィールドを持たないユニット構造体でしたが、Messageは普通のstruct/enumなので、Componentと同じように好きなだけフィールドを持たせられます。「何が起きたか」だけでなく「何がどう起きたか」のデータを一緒に送るのが実際にはよくある使い方です。
+
+```rust
+#[derive(Message)]
+struct Bounced {
+    entity: Entity,
+    position: (f32, f32),
+}
+```
+
+```rust
+bounced.write(Bounced {
+    entity,
+    position: (position.0, position.1),
+});
+```
+
+```rust
+fn on_bounced(mut messages: MessageReader<Bounced>) {
+    for event in messages.read() {
+        println!("{:?} bounced at {:?}", event.entity, event.position);
+    }
+}
+```
+
+UE5のDelegateで言う`DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam`のように、引数付きで通知を送るのとまったく同じ発想です。
+
 ## なぜMessageを使うのか（Systemの疎結合）
 
 `movement`が直接`println!`を呼んでもいいのに、わざわざMessageを経由する理由は、**送る側が受け取る側を知らなくていい**ようにするためです。`movement`は「跳ね返ったこと」を`Bounced`として送るだけで、それを誰が・いくつのSystemが受け取って何をするかには一切関知しません。効果音を鳴らすSystem、スコアを加算するSystem、画面を揺らすSystemなど、後から受け取る側だけをいくつでも追加できます。
