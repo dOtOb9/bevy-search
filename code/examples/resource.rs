@@ -17,7 +17,7 @@ fn setup(mut commands: Commands) {
 }
 
 fn movement(mut query: Query<(&mut Position, &Velocity)>, mut total: ResMut<TotalDistance>) {
-    for (mut position, velocity) in query {
+    for (mut position, velocity) in &mut query {
         position.0 += velocity.0;
         position.1 += velocity.1;
 
