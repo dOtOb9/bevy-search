@@ -12,7 +12,7 @@
 - [Resource](./resource.md)
 - [Time](./time.md)
 - [Message（旧: Event）](./message.md)
-- [変更検知（Changed / Added）]()
+- [変更検知（Changed / Added）](./change_detection.md)
 - [TransformとHierarchy（親子関係）]()
 - [Input（キーボード・マウス）]()
 - [Assets（画像・モデルの読み込み）]()
