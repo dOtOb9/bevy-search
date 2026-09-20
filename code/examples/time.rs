@@ -19,6 +19,22 @@ fn movement(mut query: Query<(&mut Position, &Velocity)>, time: Res<Time>) {
     }
 }
 
-fn print_position(query: Query<&Position>) {
-    
+fn print_position(query: Query<&Position>, time: Res<Time>) {
+    for position in query {
+        println!(
+            "t={:.2}s ({:.1}, {:.1})",
+            time.elapsed_secs(),
+            position.0, 
+            position.1
+        )
+    }
+}
+
+fn main() {
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .add_systems(Startup, setup)
+        .add_systems(Update, movement)
+        .add_systems(Update, print_position)
+        .run();
 }
