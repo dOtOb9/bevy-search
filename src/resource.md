@@ -41,6 +41,15 @@ fn add_score(mut score: ResMut<Score>) {
 }
 ```
 
+## 補足: `Res<T>`はなぜ`&T`ではないのか
+
+Query章では`Query<&Position>`のように`&`が直接見える書き方をしましたが、`Res<Time>`のように`Res`/`ResMut`には`&`が出てきません。これは担っている役割のレイヤーが違うためです。
+
+- `Query<&Position>`の`&Position`は「Entityごとにどんなデータの形が欲しいか」を表す指定（`WorldQuery`という仕組み）です。1つ1つのEntityを覗いた時に手に入るのが文字通り`&Position`という参照なので、そのまま`&`で書けます。
+- `Res<T>`・`ResMut<T>`自体は、Systemの引数として渡される専用のラッパー構造体（`SystemParam`という仕組み。`Query`自体もこの`SystemParam`の一種です）です。ただの参照ではなく、「これは何のResourceへのアクセスか」「変更検知用のタイムスタンプ」といった付加情報を一緒に抱えているため、生の`&T`ではなく専用の型として定義されています。同じ理由で、Event章で扱う`EventWriter`/`EventReader`も`&`の付かない専用のラッパー型です。
+
+ただし`Res<T>`は`Deref`（`ResMut<T>`は`DerefMut`も）を実装しているので、中身のメソッドをそのまま呼び出せます。書き方は違っても、使い勝手はほぼ「参照っぽく」扱えます。
+
 ## 組み込みのResource
 
 `DefaultPlugins`は、自分で登録しなくても最初から使えるResourceをいくつも用意してくれています。代表的なものに、経過時間を管理する`Time`や、アセットの読み込みを行う`AssetServer`があります。これらも普通のResourceなので、使うときは同じように`Res<Time>`のようにSystemの引数へ書くだけです。
