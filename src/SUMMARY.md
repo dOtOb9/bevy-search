@@ -7,3 +7,4 @@
 - [起動方法](./getting_started.md)
 - [Plugin](./plugin.md)
 - [System](./system.md)
+- [Query](./query.md)
