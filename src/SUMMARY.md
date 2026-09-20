@@ -11,7 +11,7 @@
 - [EntityとComponent](./entity_component.md)
 - [Resource](./resource.md)
 - [Time](./time.md)
-- [Message（旧: Event）](./event.md)
+- [Message（旧: Event）](./message.md)
 - [変更検知（Changed / Added）]()
 - [TransformとHierarchy（親子関係）]()
 - [Input（キーボード・マウス）]()
