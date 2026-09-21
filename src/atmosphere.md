@@ -30,6 +30,23 @@ fn setup(mut commands: Commands, mut media: ResMut<Assets<ScatteringMedium>>) {
 
 このEntityの`Transform`（正確には`GlobalTransform`）が「惑星の中心」の座標として扱われます。他に`Atmosphere::mars()`もあります（`ScatteringMedium`にも同様に`mars()`があります）。
 
+## 補足: スケールに要注意
+
+`Atmosphere::earth()`は、`inner_radius`（地表）を`6_360_000.0`（メートル単位、つまり6360km）という**実際の地球の半径**に設定します。大気Entityの座標は「惑星の中心」なので、これを原点`(0.0, 0.0, 0.0)`に置くと、地表は原点から638万メートルも離れた場所になってしまいます。
+
+これまでの章のカメラは原点から数メートルの距離に置いていましたが、そのままだとカメラは地表よりずっと内側（惑星の中心＝岩盤の中）にいることになり、大気の層（地表からさらに10万メートル上空まで）に全く届きません。大気を見るには、カメラを「地表からの高さ」の位置に置く必要があります。
+
+簡単な対処法は、大気Entity自体を`inner_radius`の分だけ下にずらして、原点付近が「ちょうど地表」になるようにすることです。
+
+```rust
+commands.spawn((
+    Atmosphere::earth(medium),
+    Transform::from_xyz(0.0, -6_360_000.0, 0.0),
+));
+```
+
+こうしておけば、原点は地表からの高さ`0`の地点になるので、これまで通り`Transform::from_xyz(0.0, 2.0, 5.0)`のような小さい数値でカメラを置くだけで、地表付近から空を見上げる形になります。
+
 **2. カメラ側**
 
 ```rust
@@ -70,7 +87,10 @@ use bevy::prelude::*;
 fn setup(mut commands: Commands, mut media: ResMut<Assets<ScatteringMedium>>) {
     let medium = media.add(ScatteringMedium::default());
 
-    commands.spawn((Atmosphere::earth(medium), Transform::from_xyz(0.0, 0.0, 0.0)));
+    commands.spawn((
+        Atmosphere::earth(medium),
+        Transform::from_xyz(0.0, -6_360_000.0, 0.0),
+    ));
 
     commands.spawn((
         Camera3d::default(),
