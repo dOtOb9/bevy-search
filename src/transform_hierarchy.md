@@ -18,6 +18,21 @@ pub struct Transform {
 commands.spawn(Transform::from_xyz(10.0, 0.0, 0.0));
 ```
 
+## 補足: 座標系（軸の向き）はUE5と違う
+
+BevyとUE5では、XYZ軸の向きが異なります。ソースのコメントにはこう書かれています。
+
+> The camera coordinate space is right-handed X-right, Y-up, Z-back.
+
+Bevyは**右手系・Y-up**（X=右、Y=上、Z=手前。奥に進むには-Z方向）です。一方UE5は**左手系・Z-up**（X=前、Y=右、Z=上）で、「高さ＝Z」という直感的な軸の取り方になっています。
+
+この違いの背景（一般的なグラフィックス業界の知識としての理解で、Epic社の一次情報で裏を取ったものではありません）は、大きく2つあると考えられます。
+
+1. **Z-up＝測量・CAD由来の慣習**: 建築・土木・測量・CAD（AutoCADや3ds Maxなど）の世界では、地面をXY平面、高さをZ軸として扱うのが伝統的な慣習です。UE5はレベルデザイナーや建築系ユーザーにも馴染みやすいよう、この慣習を踏襲していると考えられます。
+2. **左手系＝DirectXの伝統**: UE5は歴史的にWindows/DirectXとの結びつきが強く、DirectXは伝統的に左手系がデフォルトです（対してOpenGLは右手系がデフォルト）。BevyはOpenGL/Vulkanの系譜に近いWGPUを使っており、3DモデルフォーマットのglTF規格自体も「右手系・Y-up」を標準として明記しているため、Rustのグラフィックスエコシステム全体がこの慣習に寄っています。
+
+実務上のポイントは、**UE5でいう「高さ」はBevyではZ軸ではなくY軸になる**という点です。2DだけならXY平面しか使わないので影響はほぼありませんが、3Dのシミュレーションを組むときはここを間違えやすいので最初に意識しておくと良いです。
+
 `Transform`を付けると、自動的に`GlobalTransform`というComponentも一緒に付与されます。これは「Required Components」と呼ばれる仕組みで、ある型を定義する側で「このComponentを付けるときは、このComponentも一緒に必要」と宣言しておくと、`spawn`時にBevyが足りない分を自動で補ってくれます（`Transform`自体の定義に`#[require(GlobalTransform)]`のような指定がされています）。手動で`GlobalTransform`を付け忘れる心配をしなくていい、というのがこの仕組みの狙いです。
 
 `Transform`は「親から見た相対位置」、`GlobalTransform`は「実際のワールド上の絶対位置」で、親がいないEntityではこの2つは常に同じ値になります。`GlobalTransform`は毎フレームBevyが`Transform`と親の位置から自動計算するもので、通常は自分で書き換えません。
