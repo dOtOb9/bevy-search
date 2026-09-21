@@ -22,6 +22,31 @@ fn movement(mut query: Query<(&mut Position, &Velocity)>, time: Res<Time>) {
 
 `.iter_mut()`の代わりに`.par_iter_mut().for_each(...)`を使うだけで、対象のEntity群がバックグラウンドのスレッドプールに分割され、複数のCPUコアで同時に処理されます。Entity数が少ないうちはスレッド分散のオーバーヘッドの方が大きく逆に遅くなることもありますが、数千〜数万規模になると効果がはっきり出てきます。
 
+## 補足: `iter_mut`・`for_each`・`50_000`について
+
+**`50_000`の`_`** — 数値リテラルの中の`_`（アンダースコア）は完全に無視される、見た目上の桁区切りです。`50_000`は`50000`と全く同じ値で、桁の多い数を読みやすくするためだけの機能です。
+
+**`iter`・`iter_mut`・`into_iter`の命名規則** — Rustのコレクション系の型には、大体この3種類のメソッドが揃っています。
+
+- `.iter()` — 各要素への**不変参照**（`&T`）を順番に返す
+- `.iter_mut()` — 各要素への**可変参照**（`&mut T`）を順番に返す（値を書き換えられる）
+- `.into_iter()` — コレクション自体を消費して、各要素の**所有権**（`T`そのもの）を順番に返す
+
+これまでの章で書いてきた`for (mut position, velocity) in &mut query`は、内部的にこの`.iter_mut()`を呼んでいるのと同じ処理をする糖衣構文です。
+
+**`for_each`は`iter`全般で使える** — `.for_each(クロージャ)`は`par_iter`専用ではなく、Rustの通常の`Iterator`が持つ一般的なメソッドです。普通の`.iter()`/`.iter_mut()`でも、`for`ループの代わりに使えます（`query.iter().for_each(|x| { ... })`のように）。ただし`par_iter_mut()`が返す型だけは普通の`Iterator`ではなく`for`ループで回せないため、`.for_each()`一択になります。
+
+**Iteratorの正体** — Rustの`Iterator`トレイトは、本質的には「次の値を取り出す」という操作を1つの関数に落とし込んだものです。
+
+```rust
+trait Iterator {
+    type Item;
+    fn next(&mut self) -> Option<Self::Item>;
+}
+```
+
+`next()`を呼ぶたびに内部の位置を1つ進め、値があれば`Some(値)`、無くなれば`None`を返します。C言語スタイルの`for (init; 条件; increment)`でいう「条件チェック」と「increment」の両方を、`Option`という1つの型に押し込めたようなイメージです。実際、Rustの`for`ループはこの`next()`を裏で呼んでいるだけのシンタックスシュガーで、`for`・`.for_each()`・`.map()`・`.filter()`といった様々な書き方は、すべてこの1つの`next()`を土台に成り立っています。
+
 ## 大量生成には`spawn_batch`
 
 Entity/Component章で使った`commands.spawn(...)`をループで何千回も呼ぶより、`spawn_batch`でまとめて生成する方が効率的です。
