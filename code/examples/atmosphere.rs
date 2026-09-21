@@ -6,7 +6,7 @@ use bevy::pbr::AtmosphereSettings;
 fn setup(mut commands: Commands, mut media: ResMut<Assets<ScatteringMedium>>) {
     let medium = media.add(ScatteringMedium::default());
 
-    commands.spawn((Atmosphere::earth(medium), Transform::from_xyz(0.0, 0.0, 0.0)));
+    commands.spawn((Atmosphere::earth(medium), Transform::from_xyz(0.0, -6_360_000.0, 0.0)));
 
     commands.spawn((
         Camera3d::default(),

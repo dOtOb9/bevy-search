@@ -55,9 +55,11 @@ use bevy::pbr::AtmosphereSettings;
 commands.spawn((
     Camera3d::default(),
     AtmosphereSettings::default(),
-    Transform::from_xyz(0.0, 2.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+    Transform::from_xyz(0.0, 2.0, 5.0).looking_at(Vec3::new(0.0, 2.0, 0.0), Vec3::Y),
 ));
 ```
+
+見る先の高さ（`y`）をカメラ自身の高さと同じにしているのがポイントです。地表の1点（高さ0）を見てしまうと、水平よりだいぶ下向きのアングルになり、画面の大部分が地平線より下を映してしまいます。同じ高さの点を見れば、ほぼ水平（地平線を中心にしたアングル）になり、画面の上半分に空が広く映るようになります。
 
 `AtmosphereSettings`をカメラに付けると、そのカメラで大気散乱が描画されるようになります（LUTの解像度などの品質設定もここに入っています）。付けるだけで、必要な内部設定（HDRレンダリングなど）はRequired Componentsの仕組みで自動的に補われます。
 
@@ -95,7 +97,7 @@ fn setup(mut commands: Commands, mut media: ResMut<Assets<ScatteringMedium>>) {
     commands.spawn((
         Camera3d::default(),
         AtmosphereSettings::default(),
-        Transform::from_xyz(0.0, 2.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+        Transform::from_xyz(0.0, 2.0, 5.0).looking_at(Vec3::new(0.0, 2.0, 0.0), Vec3::Y),
     ));
 
     commands.spawn((
