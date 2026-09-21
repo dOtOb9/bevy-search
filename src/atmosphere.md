@@ -2,7 +2,7 @@
 
 Bevyの`Atmosphere`は、UE5のSky Atmosphereと同じ発想の、物理ベースの大気散乱を再現する機能です。中身の実装（GPU compute shaderでのLUT計算など）は3Dの基礎とAtmosphere章の前段で触れた通りかなり専門的ですが、使う側としてはComponentを付けるだけで使えます。
 
-> 補足: 最初、Bevy本体のドキュメントコメントを頼りに書こうとしたところ、そこに書かれていた説明と実際のソースコードの構造が食い違っていました（ドキュメントが実装のリファクタに追いついていなかったようです）。最終的には`cargo doc`で実際にこのバージョン向けにドキュメントを生成し、そこに書かれた型定義を直接確認して裏を取っています。ドキュメントコメントも100%は信用できないことがある、という一例です。
+> 補足: 最初、Bevy本体のドキュメントコメントを頼りに書こうとしたところ、そこに書かれていた説明と実際のソースコードの構造が食い違っていました（ドキュメントが実装のリファクタに追いついていなかったようです）。`cargo doc`で実際にこのバージョン向けにドキュメントを生成して型定義を確認しましたが、それでも関数の**引数の中身**まではきちんと見ていなかったため、最初に書いたコードは実際には`cargo run`できないバグ入りのものでした。以下は、実際に動かして見つかったそのバグを直した後の内容です。ドキュメントもAIの説明も、実際にコンパイルが通るところまで確認しないと100%は信用できない、という良い実例です。
 
 ## 必要なEntityは2つ
 
@@ -10,16 +10,25 @@ Bevyの`Atmosphere`は、UE5のSky Atmosphereと同じ発想の、物理ベー�
 
 **1. 大気そのもの**
 
+`Atmosphere::earth()`は、地球っぽい大気のパラメータ（半径など）をまとめて設定してくれる専用のコンストラクタですが、実際には大気の「組成」を表す`ScatteringMedium`という別のAssetへの`Handle`を1つ引数に取ります。これはAsset章で見た`Handle<Image>`と同じ考え方で、`Assets<ScatteringMedium>`に追加して`Handle`を取得します。
+
 ```rust
 use bevy::light::Atmosphere;
+use bevy::light::atmosphere::ScatteringMedium;
 
-commands.spawn((
-    Atmosphere::earth(),
-    Transform::from_xyz(0.0, 0.0, 0.0),
-));
+fn setup(mut commands: Commands, mut media: ResMut<Assets<ScatteringMedium>>) {
+    let medium = media.add(ScatteringMedium::default());
+
+    commands.spawn((
+        Atmosphere::earth(medium),
+        Transform::from_xyz(0.0, 0.0, 0.0),
+    ));
+}
 ```
 
-このEntityの`Transform`（正確には`GlobalTransform`）が「惑星の中心」の座標として扱われます。`Atmosphere::earth()`という、地球っぽい大気のパラメータをまとめて設定してくれる専用のコンストラクタが用意されています（他に`Atmosphere::mars()`もあります）。
+`ScatteringMedium::default()`は、内部的に`ScatteringMedium::earth(256, 256)`（地球の大気組成データを、それなりの解像度で生成したもの）を返すようになっているので、細かい値を自分で決めなくても、これだけで地球っぽい大気になります。
+
+このEntityの`Transform`（正確には`GlobalTransform`）が「惑星の中心」の座標として扱われます。他に`Atmosphere::mars()`もあります（`ScatteringMedium`にも同様に`mars()`があります）。
 
 **2. カメラ側**
 
@@ -54,11 +63,14 @@ commands.spawn((
 
 ```rust
 use bevy::light::Atmosphere;
+use bevy::light::atmosphere::ScatteringMedium;
 use bevy::pbr::AtmosphereSettings;
 use bevy::prelude::*;
 
-fn setup(mut commands: Commands) {
-    commands.spawn((Atmosphere::earth(), Transform::from_xyz(0.0, 0.0, 0.0)));
+fn setup(mut commands: Commands, mut media: ResMut<Assets<ScatteringMedium>>) {
+    let medium = media.add(ScatteringMedium::default());
+
+    commands.spawn((Atmosphere::earth(medium), Transform::from_xyz(0.0, 0.0, 0.0)));
 
     commands.spawn((
         Camera3d::default(),
