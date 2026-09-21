@@ -15,7 +15,7 @@ fn print_count(counter: Res<Counter>) {
 - `Query<...>` — 条件に合うComponentを持つEntity群への問い合わせ（詳細は次章で扱います）
 - `Res<T>` / `ResMut<T>` — アプリ全体で1つだけ存在するリソースの読み取り／書き込み
 - `Commands` — Entityの生成・削除やComponentの追加などを予約する
-- `EventReader<T>` / `EventWriter<T>` — イベントの受信／送信
+- `MessageReader<T>` / `MessageWriter<T>` — メッセージの受信／送信（Message章で扱います。以前は`EventReader`/`EventWriter`という名前でした）
 
 ## いつ実行されるか（Schedule）
 
@@ -25,6 +25,19 @@ Systemは`add_systems`で、どのタイミングで実行するかを指定し�
 app.add_systems(Startup, setup)
    .add_systems(Update, (count, print_count));
 ```
+
+## 補足: 関数名にかっこ`()`を付けないのはなぜか
+
+`setup`や`count`はかっこ無しで渡しています。これは「その関数を呼び出す」のではなく、**関数そのものを値として渡している**という意味です。
+
+```rust
+setup     // 関数そのもの（値）。「これを後で呼んでね」という参照
+setup()   // 今すぐ呼び出す。戻り値（ここでは`()`）が返ってくる
+```
+
+Rustでは関数名だけを書くと、その関数を指す特別な型の値（関数アイテム）として扱われます。`add_systems`は「後で（該当のScheduleのタイミングで）呼び出すべき関数はどれか」を登録したいだけで、その場で実行結果が欲しいわけではないので、関数そのものを渡す必要があります。もし`setup()`のようにかっこを付けてしまうと、その場ですぐ`setup`が実行されてしまい、その戻り値（`()`という「何も無い」型）を渡そうとしてコンパイルエラーになります。
+
+これはこの本で今まで書いてきた`add_systems`の呼び出し全部に共通する話です。「後で誰かに呼んでもらうための関数」を渡すときは、実行せずそのまま名前だけ渡す、という感覚です。
 
 代表的なScheduleは以下の通りです。
 
