@@ -22,4 +22,5 @@
 - [UI](./ui.md)
 - [3Dの基礎（Mesh・Material・Light）](./rendering_3d.md)
 - [Atmosphere](./atmosphere.md)
+- [Gizmos: 座標を見ながら確認する](./gizmos.md)
 - [Audio]()
