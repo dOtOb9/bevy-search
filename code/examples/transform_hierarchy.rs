@@ -32,6 +32,6 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup)
-        .add_systems(Update, (move_group, print_members))
+        .add_systems(Update, (move_group, print_members).chain())
         .run();
 }
