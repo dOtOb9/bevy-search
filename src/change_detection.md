@@ -41,6 +41,23 @@ fn touch_only(mut query: Query<&mut Position>) {
 
 UE5には`Changed<T>`にそのまま相当する汎用の仕組みはなく、多くの場合「変更があったら自分でdirtyフラグを立てて、後で自分でチェックしてクリアする」という処理を手で書く必要があります（レプリケーションの`OnRep`はネットワーク同期に特化した別の仕組みです）。Bevyの`Changed<T>`は、このdirtyフラグ管理をフレームワーク側が自動でやってくれるようなものだと考えると分かりやすいです。
 
+## 補足: Resourceにも変更検知はあるか
+
+`Changed<T>`/`Added<T>`はQueryのフィルタなので、そのままの形ではResourceに使えません。代わりに、System全体に対する`run_if`条件として用意されています。
+
+```rust
+app.add_systems(Update, my_system.run_if(resource_changed::<Score>));
+```
+
+対応関係はこうなります。
+
+| Componentの場合（Queryのフィルタ） | Resourceの場合（runの条件） |
+|---|---|
+| `Query<&T, Changed<T>>` | `.run_if(resource_changed::<T>())` |
+| `Query<&T, Added<T>>` | `.run_if(resource_added::<T>())` |
+
+ComponentはEntityが何個もあるので「変わった**Entityだけ**」を絞り込む必要がありQueryのフィルタという形になっていますが、Resourceはアプリ全体に1個しか無いため「絞り込む」という概念自体がなく、代わりに「そのSystem自体を実行するかどうか」を丸ごと切り替える`run_if`という形になっている、という違いです。
+
 ## 試してみる
 
 `code/examples/changed_detection.rs`を作り、以下を書いてください。
