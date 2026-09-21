@@ -68,6 +68,16 @@ app.add_systems(OnEnter(SimPhase::Running), on_start_running)
 
 `Running`に切り替わった最初の1回だけ`on_start_running`が呼ばれ、`Running`から他の状態に移った瞬間に`on_stop_running`が呼ばれます。
 
+## 補足: 普通のResourceに`enum`を持たせるのと何が違うか
+
+`Paused`が1個あるだけのような単純なケースなら、正直大差はありません。`States`を使う価値は、以下の3点にあります。
+
+1. **`run_if(in_state(X))`はSystemそのものを呼ばせない** — 自前Resourceだと、Systemの中身で`if resource.phase == Running { ... }`と毎回チェックする必要があります。`States`ならSystem自体がスケジューラの時点で丸ごとスキップされるので、「どのSystemがどの局面で動くか」がApp構築のコードを見ただけで分かります（Systemの中身を読まなくていい）。
+2. **`OnEnter`/`OnExit`は「切り替わった瞬間」を自動検知してくれる** — 自前Resourceでこれをやろうとすると、「前回の値」を別途持っておいて毎フレーム比較する、という手書きの仕組みが必要になります。`States`ならフレームワーク側がその比較をやってくれます。
+3. **`DespawnOnExit<S>`という専用Componentがある** — Entityにこれを付けておくと、指定した状態から抜けた瞬間にBevyが自動でそのEntityを`despawn`してくれます。「シミュレーション終了時に表示していたAgentを全部消す」のような後片付けを、自分でSystemを書かずに済ませられます。
+
+逆に言うと、状態が1〜2個で、切り替わった瞬間の処理も特に無いなら、`States`を使わず素朴な`Resource`のboolやenumで十分です。フェーズの数が増えたり、「入った瞬間だけ初期化」「出た瞬間だけ後片付け」が増えてくるタイミングで`States`に切り替える価値が出てくる、という感覚です。
+
 ## UE5との対比
 
 UE5には`States`にそのまま相当する汎用の仕組みはなく、多くの場合`GameMode`/`GameState`に自前で`enum`を持たせ、遷移のたびに手でBroadcastやチェックを書く、という実装になりがちです（AI用途なら`Gameplay State Tree`や`Behavior Tree`がありますが、これはアプリ全体のフェーズ管理とは別物です）。
