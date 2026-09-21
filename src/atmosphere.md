@@ -1,4 +1,4 @@
-# Atmosphere（最低限の使い方）
+# Atmosphere
 
 Bevyの`Atmosphere`は、UE5のSky Atmosphereと同じ発想の、物理ベースの大気散乱を再現する機能です。中身の実装（GPU compute shaderでのLUT計算など）は3Dの基礎とAtmosphere章の前段で触れた通りかなり専門的ですが、使う側としてはComponentを付けるだけで使えます。
 
