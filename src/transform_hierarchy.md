@@ -18,7 +18,9 @@ pub struct Transform {
 commands.spawn(Transform::from_xyz(10.0, 0.0, 0.0));
 ```
 
-`Transform`を付けると、自動的に`GlobalTransform`というComponentも一緒に付与されます（Plugin章で触れた「あるComponentを付けると関連するComponentも自動で付いてくる」仕組みです）。`Transform`は「親から見た相対位置」、`GlobalTransform`は「実際のワールド上の絶対位置」で、親がいないEntityではこの2つは常に同じ値になります。`GlobalTransform`は毎フレームBevyが`Transform`と親の位置から自動計算するもので、通常は自分で書き換えません。
+`Transform`を付けると、自動的に`GlobalTransform`というComponentも一緒に付与されます。これは「Required Components」と呼ばれる仕組みで、ある型を定義する側で「このComponentを付けるときは、このComponentも一緒に必要」と宣言しておくと、`spawn`時にBevyが足りない分を自動で補ってくれます（`Transform`自体の定義に`#[require(GlobalTransform)]`のような指定がされています）。手動で`GlobalTransform`を付け忘れる心配をしなくていい、というのがこの仕組みの狙いです。
+
+`Transform`は「親から見た相対位置」、`GlobalTransform`は「実際のワールド上の絶対位置」で、親がいないEntityではこの2つは常に同じ値になります。`GlobalTransform`は毎フレームBevyが`Transform`と親の位置から自動計算するもので、通常は自分で書き換えません。
 
 ## Hierarchy（親子関係）
 
