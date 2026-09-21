@@ -17,7 +17,7 @@
 - [画面に表示する（Camera・Sprite・Assets）](./rendering_basics.md)
 - [FixedUpdateとシミュレーションのステップ実行](./fixed_update.md)
 - [大量のEntityを捌く（パフォーマンスと並列実行の深掘り）](./performance.md)
-- [Input（キーボード・マウス）]()
+- [Input（キーボード・マウス）](./input.md)
 - [State（シミュレーションのフェーズ管理）]()
 - [UI（最低限の使い方）]()
 - [3Dの基礎とAtmosphere（最低限の使い方）]()
