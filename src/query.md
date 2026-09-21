@@ -41,7 +41,7 @@ fn player_only(query: Query<&Position, With<Player>>) {
 
 ## 1件だけ取得する
 
-対象が1つしかないと分かっている場合（例えばプレイヤーが1人だけのゲーム）は`.single()`が使えます。対象が0件または2件以上だとpanicします。特定のEntityを名指しで取得したい場合は`.get(entity)`を使います。
+対象が1つしかないと分かっている場合（例えばプレイヤーが1人だけのゲーム）は`.single()`が使えます。これは`Result<T, QuerySingleError>`を返し、対象が0件または2件以上だと`Err`になります（panicはしません）。特定のEntityを名指しで取得したい場合は`.get(entity)`を使います。
 
 ## 補足: `&mut`で取っているのに、並列実行と衝突しないのか
 
